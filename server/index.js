@@ -1,8 +1,15 @@
+const { error } = require('console');
 const express = require('express');
 const path = require('path');
 
 const app = express();
 const port = 8080;
+
+// Add logRoutes Middleware
+const logRoutes = (res, req, next) =>{
+  console.log(req.method, req.url, new Date().toISOString())
+  next()
+}
 
 // Data — do not modify
 const quotes = [
@@ -21,6 +28,35 @@ const quotes = [
 // TODO: Define middleware here
 
 // 1. logRoutes — logs the HTTP method, URL, and timestamp for every request, then calls next()
+
+// GET /api/quotes
+const getQuotes = (req, res, next) => {
+  const topic = req.query.topic
+
+  if (topic){
+    const topicMatching = quotes.filter(quote => quote.topic === topic)
+   return res.send(topicMatching)
+  } else {
+  res.send(quotes)
+  }
+}
+
+// GET /api/quotes/:id
+const getQoutesById = (req, res, next) => {
+  const id = Number(req.params.id)
+
+  const foundQuote = quotes.find(quote => quote.id === id)
+  if (!foundQuote){
+    res.status(404).send({ error: `Quote (${req.params.id}) not found!` })
+    return
+  }
+  res.send(foundQuote)
+}
+
+// Handles errror
+const unmached = (req, res) => {
+  res.status(404).send({ error: `Quote not found! ${req.params.id}` });
+};
 
 // 2. express.static() — generates middleware that serves files from the frontend/ folder
 //    Use path.join(__dirname, '../frontend') to construct the absolute path
@@ -49,7 +85,12 @@ const quotes = [
 // TODO: Add a catch-all fallback that responds with 404 and { error: 'Not found: <url>' }
 // Use app.use() and place it after all other routes
 
+app.use (logRoutes)
 
+app.get("/api/quotes/:id", getQoutesById)
+app.get("/api/quotes", getQuotes)
+
+app.use(unmached);
 
 app.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);
