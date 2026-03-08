@@ -6,12 +6,13 @@ const app = express();
 const port = 8080;
 
 // Add logRoutes Middleware
-const logRoutes = (res, req, next) =>{
+const logRoutes = (req, res, next) =>{
   console.log(req.method, req.url, new Date().toISOString())
   next()
 }
 
 // Data — do not modify
+
 const quotes = [
   { id: 1, author: 'Marie Curie', topic: 'science', text: 'Nothing in life is to be feared, it is only to be understood.' },
   { id: 2, author: 'Albert Einstein', topic: 'science', text: 'Imagination is more important than knowledge.' },
@@ -60,12 +61,16 @@ const unmached = (req, res) => {
 
 // 2. express.static() — generates middleware that serves files from the frontend/ folder
 //    Use path.join(__dirname, '../frontend') to construct the absolute path
+const pathToFrontend = path.join(__dirname, '../frontend')
+
+const staticPath = express.static(pathToFrontend)
 
 // TODO: Register middleware with app.use() before the controllers
 
-
+app.use(staticPath)
 
 // TODO: Define controllers here
+ 
 
 // listQuotes — sends all quotes as JSON
 //   If the request includes a ?topic= query string, send only quotes with a matching topic
@@ -86,6 +91,8 @@ const unmached = (req, res) => {
 // Use app.use() and place it after all other routes
 
 app.use (logRoutes)
+app.use(staticPath)
+
 
 app.get("/api/quotes/:id", getQoutesById)
 app.get("/api/quotes", getQuotes)
