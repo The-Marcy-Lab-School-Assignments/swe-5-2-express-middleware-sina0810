@@ -1,4 +1,3 @@
-const { error } = require('console');
 const express = require('express');
 const path = require('path');
 
@@ -26,9 +25,10 @@ const quotes = [
   { id: 10, author: 'Leonardo da Vinci', topic: 'art', text: 'Simplicity is the ultimate sophistication.' },
 ];
 
-// TODO: Define middleware here
+const pathToFrontend = path.join(__dirname, '../frontend');
+const staticPath = express.static(pathToFrontend);
 
-// 1. logRoutes — logs the HTTP method, URL, and timestamp for every request, then calls next()
+
 
 // GET /api/quotes
 const getQuotes = (req, res, next) => {
@@ -56,46 +56,14 @@ const getQoutesById = (req, res, next) => {
 
 // Handles errror
 const unmached = (req, res) => {
-  res.status(404).send({ error: `Quote not found! ${req.params.id}` });
+  res.status(404).send({ error: `Not found: ${req.originalUrl}` });
 };
-
-// 2. express.static() — generates middleware that serves files from the frontend/ folder
-//    Use path.join(__dirname, '../frontend') to construct the absolute path
-const pathToFrontend = path.join(__dirname, '../frontend')
-
-const staticPath = express.static(pathToFrontend)
-
-// TODO: Register middleware with app.use() before the controllers
-
-app.use(staticPath)
-
-// TODO: Define controllers here
- 
-
-// listQuotes — sends all quotes as JSON
-//   If the request includes a ?topic= query string, send only quotes with a matching topic
-
-// getQuote — sends a single quote whose id matches req.params.id
-//   If no matching quote is found, respond with 404 and { error: 'No quote with id <id>' }
-
-
-
-// TODO: Register endpoints here
-
-// GET /api/quotes
-// GET /api/quotes/:id
-
-
-
-// TODO: Add a catch-all fallback that responds with 404 and { error: 'Not found: <url>' }
-// Use app.use() and place it after all other routes
 
 app.use (logRoutes)
 app.use(staticPath)
 
-
-app.get("/api/quotes/:id", getQoutesById)
 app.get("/api/quotes", getQuotes)
+app.get("/api/quotes/:id", getQoutesById)
 
 app.use(unmached);
 
